@@ -1,0 +1,33 @@
+default: &default
+  adapter: "postgresql"
+  encoding: "unicode"
+  database: "<%= ENV.fetch("POSTGRES_DB") { "example_app" } %>"
+  username: "<%= ENV.fetch("POSTGRES_USER") { "user" } %>"
+  password: "<%= ENV.fetch("POSTGRES_PASSWORD") { "secret" } %>"
+  port: "<%= ENV.fetch("POSTGRES_PORT") { 5432 } %>"
+  pool: "<%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>"
+
+development:
+  main:
+    <<: *default
+    host: postgres-main
+    database: <%= ENV.fetch("POSTGRES_DB") { "example_app" } %>_development
+  read:
+    <<: *default
+    host: postgres-replica
+    database: <%= ENV.fetch("POSTGRES_DB") { "example_app" } %>_development_replica
+
+test:
+  main:
+    <<: *default
+    database: <%= ENV.fetch("POSTGRES_DB") { "example_app" } %>_test
+  read:
+    <<: *default
+    database: <%= ENV.fetch("POSTGRES_DB") { "example_app" } %>_test
+
+production:
+  main:
+    url: <%= ENV.fetch("MAIN_DATABASE_URL", "") %>
+
+  read:
+    url: <%= ENV.fetch("READ_DATABASE_URL", "") %>

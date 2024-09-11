@@ -1,0 +1,40 @@
+services:
+  web:
+    build: .
+    command: bash -c "rm -f tmp/pids/server.pid && bin/rails s -p 3000 -b '0.0.0.0'"
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/usr/src/app
+      - bundle:/usr/local/bundle
+    depends_on:
+      - postgres-main
+      - postgres-replica
+    environment:
+      - RAILS_ENV=development
+      - RACK_ENV=development
+  postgres-main:
+    image: postgres:16.4
+    restart: always
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: secret
+    volumes:
+      - postgres_main:/var/lib/postgresql/data
+    command: |
+      postgres 
+      -c wal_level=logical 
+  postgres-replica:
+    image: postgres:16.4
+    restart: always
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: secret
+    volumes:
+      - postgres_replica:/var/lib/postgresql/data
+    depends_on:
+      - postgres-main
+volumes:
+  bundle:
+  postgres_replica:
+  postgres_main:
